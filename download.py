@@ -23,20 +23,27 @@ if __name__ == '__main__':
     
     requirements = ''
 
+    sourcePrefix = z.filelist[0].filename + 'source/'
     for f in z.filelist[1:]:
-        destf = '/'.join(f.filename.split('/')[1:])
+        if f.filename.endswith('requirements.txt'):
+            requirements = z.read(f).decode('utf-8')
+
+        if not f.filename.startswith(sourcePrefix):
+            continue
+
+        destf = '/'.join(f.filename.split('/')[2:])
+        print(destf)
         
         for python in pythons:
             path = os.path.join(SCRIPTDIR, python, SITE_DIR, destf)
 
-            if destf.endswith('/'):
-                os.makedirs(path, exist_ok=True)
-            else:
+            if f.filename[-1] != '/':
+                print(f)
                 if os.path.isfile(path):
                     os.remove(path)
                 _bytes = z.read(f)
-                if destf.endswith('requirements.txt'):
-                    requirements = _bytes.decode('utf-8')
+
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 with open(path, 'wb+') as _f:
                     _f.write(_bytes)
 
