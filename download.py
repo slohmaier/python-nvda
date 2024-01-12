@@ -2,21 +2,34 @@ import json
 import os
 import requests
 import subprocess
+from argparse import ArgumentParser
 from io import BytesIO
 from zipfile import ZipFile
 
 NVDA_SOURCE_URL='https://github.com/nvaccess/nvda/archive/refs/tags/{0}.zip'
+NVDA_HEAD_URL='https://codeload.github.com/nvaccess/nvda/zip/refs/heads/master'
 SCRIPTDIR = os.path.dirname(os.path.abspath(__file__))
 SITE_DIR='Lib/site-packages'
 
 if __name__ == '__main__':
-    print('Determining NVDA version...')
-    nvdaVersion = json.loads(requests.get('https://api.github.com/repos/nvaccess/nvda/releases/latest').content)['tag_name']
-    nvdaUrl = NVDA_SOURCE_URL.format(nvdaVersion)
+    argparser = ArgumentParser('python-downloader')
+    #optional argument for tag
+    argparser.add_argument('-t', '--tag', help='NVDA tag to download', default='latest')
+    
+    args = argparser.parse_args()
+
+    nvdaUrl = NVDA_SOURCE_URL.format(args.tag)
+    if args.tag == 'latest':
+        print('Determining NVDA version...')
+        nvdaVersion = json.loads(requests.get('https://api.github.com/repos/nvaccess/nvda/releases/latest').content)['tag_name']
+        nvdaUrl = NVDA_SOURCE_URL.format(nvdaVersion)
+    elif args.tag == 'head':
+        nvdaUrl = NVDA_HEAD_URL
 
     print('Downloading latest NVDA tag: '+nvdaUrl)
     res = requests.get(nvdaUrl)
     print('DONE!\n')
+
 
     print ('Unzipping to python-distributions...')
     zipIO = BytesIO(res.content)
