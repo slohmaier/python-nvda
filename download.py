@@ -2,6 +2,7 @@ import json
 import os
 import requests
 import subprocess
+import sys
 from argparse import ArgumentParser
 from io import BytesIO
 from zipfile import ZipFile
@@ -72,6 +73,17 @@ if __name__ == '__main__':
                 with open(path, 'wb+') as _f:
                     _f.write(_bytes)
 
+    print('DONE!\n')
+
+    print('Ensuring pip is installed')
+    for python in pythons:
+        pycmd = [os.path.join(SCRIPTDIR, python, 'python.exe'), 'get-pip.py']
+        print(' '.join(pycmd))
+        pyProcess = subprocess.Popen(pycmd)
+        pyProcess.wait(60.0)
+        if pyProcess.returncode != 0:
+            print('ERROR! look at pip-install.log')
+            sys.exit(1)
     print('DONE!\n')
 
     print('Installing pip dependencies')
