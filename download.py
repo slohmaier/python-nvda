@@ -87,7 +87,7 @@ if __name__ == '__main__':
     print('DONE!\n')
 
     print('Installing pip dependencies')
-    for requirement in requirements.split('\n')+['venv']:
+    for requirement in requirements.split('\n'):
         #only handle non-empty and non-comment lines
         requirement = requirement.strip()
         if requirement and not requirement.startswith('#'):
