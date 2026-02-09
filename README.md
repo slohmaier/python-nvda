@@ -43,6 +43,7 @@ python64\python.exe your_script.py   # 64-bit (NVDA 2026.1+)
 |--------|-------------|
 | `--nvda-version=VERSION` | NVDA version to download (default: `latest`, or `head` for master) |
 | `--skip-32bit` | Skip the 32-bit build |
+| `--list-versions` | List available NVDA versions (stable, beta, head) |
 
 ## Environment Variables
 

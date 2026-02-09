@@ -9,6 +9,7 @@ Usage:
     scons --nvda-version=2025.1    # Use specific NVDA version
     scons --nvda-version=head      # Use development HEAD
     scons --skip-32bit             # Skip 32-bit build (for NVDA 2026.1+)
+    scons --list-versions          # Show available NVDA versions
     scons python32                 # Download 32-bit Python only
     scons python64                 # Download 64-bit Python only
     scons nvda32                   # Download NVDA source into 32-bit env
@@ -38,6 +39,7 @@ NVDA_REPO = 'nvaccess/nvda'
 NVDA_SOURCE_URL = 'https://github.com/{}/archive/refs/tags/{}.zip'
 NVDA_HEAD_URL = 'https://codeload.github.com/{}/zip/refs/heads/master'
 NVDA_API_URL = 'https://api.github.com/repos/{}/releases/latest'
+NVDA_RELEASES_URL = 'https://api.github.com/repos/{}/releases?per_page=30'
 
 PIP_TRUSTED_HOSTS = ['pypi.org', 'pypi.python.org', 'files.pythonhosted.org']
 
@@ -82,6 +84,38 @@ def get_latest_nvda_version():
     url = NVDA_API_URL.format(NVDA_REPO)
     data = json.loads(download_url(url))
     return data['tag_name']
+
+def list_nvda_versions():
+    """Print available NVDA versions from GitHub releases."""
+    import re
+
+    url = NVDA_RELEASES_URL.format(NVDA_REPO)
+    releases = json.loads(download_url(url))
+
+    stable = []
+    betas = []
+    for r in releases:
+        tag = r['tag_name']
+        if not r['prerelease']:
+            stable.append(tag)
+        elif re.search(r'beta\d*$', tag):
+            betas.append(tag)
+
+    print('\nAvailable NVDA versions:\n')
+
+    print('  Stable releases (latest 5):')
+    for tag in stable[:5]:
+        print(f'    {tag}')
+
+    if betas:
+        print(f'\n  Latest beta:')
+        print(f'    {betas[0]}')
+
+    print(f'\n  Development:')
+    print(f'    head  (master branch)')
+
+    print(f'\nUsage: scons --nvda-version=<tag>')
+    print(f'       scons --nvda-version=head\n')
 
 # Builder factory functions (capture arch-specific paths via closure)
 
@@ -244,6 +278,17 @@ AddOption('--skip-32bit',
           action='store_true',
           default=False,
           help='Skip 32-bit Python build (for NVDA 2026.1+)')
+
+AddOption('--list-versions',
+          dest='list_versions',
+          action='store_true',
+          default=False,
+          help='List available NVDA versions and exit')
+
+# Handle --list-versions early
+if GetOption('list_versions'):
+    list_nvda_versions()
+    Exit(0)
 
 # Build per-architecture targets
 all_deps_targets = []
