@@ -2,6 +2,8 @@
 
 Embedded Python distribution with NVDA libraries for plugin development. Provides code-completion for the NVDA API.
 
+Builds both 32-bit and 64-bit Python environments (NVDA 2025.x uses 32-bit, NVDA 2026.1+ uses 64-bit).
+
 ## Requirements
 
 - [SCons](https://scons.org/) (`pip install scons`)
@@ -10,29 +12,43 @@ Embedded Python distribution with NVDA libraries for plugin development. Provide
 ## Usage
 
 ```bash
-# Build everything (downloads Python 3.13, NVDA source, and dependencies)
+# Build everything (downloads 32-bit + 64-bit Python, NVDA source, and dependencies)
 scons
 
+# Skip 32-bit build (for NVDA 2026.1+ only)
+scons --skip-32bit
+
 # Use the embedded Python for development
-python\python.exe your_script.py
+python32\python.exe your_script.py   # 32-bit (NVDA 2025.x)
+python64\python.exe your_script.py   # 64-bit (NVDA 2026.1+)
 ```
 
 ## Build Targets
 
 | Command | Description |
 |---------|-------------|
-| `scons` | Build everything |
-| `scons python` | Download embedded Python only |
-| `scons nvda` | Download NVDA source only |
-| `scons deps` | Install pip dependencies only |
+| `scons` | Build everything (both architectures) |
+| `scons --skip-32bit` | Build 64-bit only |
+| `scons python32` | Download 32-bit embedded Python only |
+| `scons python64` | Download 64-bit embedded Python only |
+| `scons nvda32` | Download NVDA source into 32-bit env |
+| `scons nvda64` | Download NVDA source into 64-bit env |
+| `scons deps32` | Install pip dependencies (32-bit) |
+| `scons deps64` | Install pip dependencies (64-bit) |
 | `scons -c` | Clean generated files |
+
+## Options
+
+| Option | Description |
+|--------|-------------|
+| `--nvda-version=VERSION` | NVDA version to download (default: `latest`, or `head` for master) |
+| `--skip-32bit` | Skip the 32-bit build |
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
 | `SSL_CERT_FILE` | Path to custom CA certificate (for ZScaler/corporate proxies) |
-| `NVDA_TAG` | NVDA version tag to download (default: `latest`, or use `head` for master) |
 
 ### Example with custom SSL certificate
 
@@ -43,11 +59,11 @@ SSL_CERT_FILE=C:/Apps/Zscaler_Root_CA.pem scons
 ### Example with specific NVDA version
 
 ```bash
-NVDA_TAG=release-2025.1 scons
+scons --nvda-version=release-2025.1
 ```
 
 ## What Gets Downloaded
 
-- **Python 3.13.1** (32-bit embeddable) - matches NVDA's Python version
-- **NVDA source** - extracted to `python/Lib/site-packages/` for code completion
+- **Python 3.13.1** (32-bit + 64-bit embeddable) - matches NVDA's Python version
+- **NVDA source** - extracted to `pythonXX/Lib/site-packages/` for code completion
 - **pip + dependencies** - from NVDA's requirements.txt
