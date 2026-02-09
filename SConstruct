@@ -5,15 +5,16 @@ Downloads embedded Python and NVDA source to create a standalone Python
 distribution with NVDA libraries for development/testing.
 
 Usage:
-    scons              # Build everything
-    scons python       # Download embedded Python only
-    scons nvda         # Download NVDA source only
-    scons deps         # Install pip dependencies only
-    scons -c           # Clean generated files
+    scons                          # Build everything (latest release)
+    scons --nvda-version=2025.1    # Use specific NVDA version
+    scons --nvda-version=head      # Use development HEAD
+    scons python                   # Download embedded Python only
+    scons nvda                     # Download NVDA source only
+    scons deps                     # Install pip dependencies only
+    scons -c                       # Clean generated files
 
 Environment variables:
     SSL_CERT_FILE      # Path to custom CA certificate (for ZScaler etc.)
-    NVDA_TAG           # NVDA version tag (default: latest)
 """
 
 import json
@@ -214,6 +215,14 @@ def install_deps(target, source, env):
 
     print('Dependencies installed.')
     return 0
+
+# Command-line options
+AddOption('--nvda-version',
+          dest='nvda_version',
+          type='string',
+          default='latest',
+          metavar='VERSION',
+          help='NVDA version to download (e.g., 2025.1, head, or latest)')
 
 # Create builders
 python_builder = Builder(action=download_python)
